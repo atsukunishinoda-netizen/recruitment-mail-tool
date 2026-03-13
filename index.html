@@ -362,8 +362,13 @@
     </div>
 
     <div class="field">
+      <label class="field-label">候補者情報・面談メモ <span class="optional">（任意）</span></label>
+      <textarea id="input-candidate" rows="5" placeholder="転職理由、志望動機、評価ポイント、懸念点など面談メモをそのまま貼り付けてください。AIが自動で読み取りメールに反映します。"></textarea>
+    </div>
+
+    <div class="field">
       <label class="field-label">AIへの追加要望 <span class="optional">（任意）</span></label>
-      <textarea id="input-extra" rows="2" placeholder="例：カジュアルなトーンで、次回の面接場所も含めて"></textarea>
+      <textarea id="input-extra" rows="2" placeholder="例：柔らかいトーンで、など"></textarea>
     </div>
 
     <div class="actions">
@@ -499,11 +504,12 @@ async function generateWithAI() {
   const name = document.getElementById('input-name').value || '（氏名）';
   const schedule = document.getElementById('input-schedule').value || '';
   const extra = document.getElementById('input-extra').value || '';
+  const candidate = document.getElementById('input-candidate').value || '';
   const tpl = TEMPLATES[currentResult][currentTemplateIdx];
 
   const templateBody = fillTemplate(tpl).body;
 
-  const prompt = `あなたはPKSHA Technologyの採用担当者です。以下のベーステンプレートをもとに、追加要望を反映した採用メールを書き直してください。
+  const prompt = `あなたはPKSHA Technologyの採用担当者です。以下のベーステンプレートと候補者情報をもとに、採用メールを書き直してください。
 
 【候補者名】
 ${name}
@@ -515,13 +521,18 @@ ${tpl.subject}
 ${templateBody}
 
 ${schedule ? `【面接日程候補】\n${schedule}` : ''}
-${extra ? `【追加要望・カスタマイズ指示】\n${extra}` : '追加要望はありません。テンプレートをより自然で温かみのある表現に書き直してください。'}
+${candidate ? `【候補者情報・面談メモ】
+${candidate}
 
-【指示】
-- テンプレートの構成・情報はベースにしつつ、表現を自然に書き直してください
-- 追加要望がある場合は必ず反映してください
-- 署名（■□━━...）は絶対にそのまま残してください
-- 件名も必要に応じて改善してください
+上記の候補者情報から、メールに自然に盛り込める要素（志望動機、強み、印象など）を適切に抽出してメールに反映してください。` : ''}
+${extra ? `【追加要望】\n${extra}` : ''}
+${!candidate && !extra ? '追加情報はありません。テンプレートをより自然で温かみのある表現に書き直してください。' : ''}
+
+【必須ルール】
+- 署名（■□━━...）は必ずそのまま残すこと
+- 候補者情報がある場合は、応募者の言葉・エピソードを活かして温かみのある文章にすること
+- ネガティブな評価内容（懸念点・不合格理由）はメールに書かないこと
+- 丁寧でプロフェッショナルなトーンを保つこと
 
 出力形式（この形式のみで出力。余計な説明は不要）:
 件名: （件名）
