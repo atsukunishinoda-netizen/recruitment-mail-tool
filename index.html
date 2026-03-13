@@ -501,19 +501,32 @@ async function generateWithAI() {
   const extra = document.getElementById('input-extra').value || '';
   const tpl = TEMPLATES[currentResult][currentTemplateIdx];
 
-  const prompt = `あなたは採用担当者です。以下の情報をもとに、求職者への${currentResult === 'pass' ? '選考通過' : '選考不合格'}メールを日本語で作成してください。
+  const templateBody = fillTemplate(tpl).body;
 
-候補者名: ${name}
-テンプレート種別: ${tpl.label}
-${schedule ? `日程候補: ${schedule}` : ''}
-${extra ? `追加要望: ${extra}` : ''}
+  const prompt = `あなたはPKSHA Technologyの採用担当者です。以下のベーステンプレートをもとに、追加要望を反映した採用メールを書き直してください。
 
-件名と本文をそれぞれ出力してください。形式:
+【候補者名】
+${name}
+
+【ベーステンプレート（件名）】
+${tpl.subject}
+
+【ベーステンプレート（本文）】
+${templateBody}
+
+${schedule ? `【面接日程候補】\n${schedule}` : ''}
+${extra ? `【追加要望・カスタマイズ指示】\n${extra}` : '追加要望はありません。テンプレートをより自然で温かみのある表現に書き直してください。'}
+
+【指示】
+- テンプレートの構成・情報はベースにしつつ、表現を自然に書き直してください
+- 追加要望がある場合は必ず反映してください
+- 署名（■□━━...）は絶対にそのまま残してください
+- 件名も必要に応じて改善してください
+
+出力形式（この形式のみで出力。余計な説明は不要）:
 件名: （件名）
 本文:
-（本文）
-
-丁寧でプロフェッショナルなトーンで書いてください。`;
+（本文）`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
