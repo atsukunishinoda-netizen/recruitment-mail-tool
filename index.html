@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>採用メール作成ツール | PKSHA Technology</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f2f8;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --primary-light: #eef2ff;
+      --primary-hover: #4338ca;
+      --pass: #16a34a;
+      --pass-light: #f0fdf4;
+      --fail: #dc2626;
+      --fail-light: #fef2f2;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-sub: #64748b;
+      --text-muted: #94a3b8;
+      --radius: 12px;
+      --shadow: 0 4px 32px rgba(79,70,229,0.08);
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px 60px;
+      color: var(--text);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 36px 36px 32px;
+      border: 1px solid var(--border);
+    }
+
+    .header {
+      margin-bottom: 28px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      padding-left: 46px;
+    }
+
+    /* Progress */
+    .progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 3px;
+      border-radius: 99px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+
+    .progress-step.active {
+      background: var(--primary);
+    }
+
+    /* Section label */
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    /* Toggle buttons */
+    .toggle-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      padding: 11px 0;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #fff;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text-sub);
+    }
+
+    .toggle-btn.pass-active {
+      border-color: var(--pass);
+      background: var(--pass-light);
+      color: var(--pass);
+    }
+
+    .toggle-btn.fail-active {
+      border-color: var(--fail);
+      background: var(--fail-light);
+      color: var(--fail);
+    }
+
+    /* Template list */
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .template-btn {
+      text-align: left;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #fff;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .template-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Inputs */
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      background: #fff;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.75;
+    }
+
+    .optional {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* Action buttons */
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px 0;
+      border-radius: 10px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      color: var(--text-sub);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:disabled {
+      background: #a5b4fc;
+      cursor: not-allowed;
+    }
+
+    .btn-success {
+      background: var(--pass);
+      color: #fff;
+    }
+
+    /* Preview */
+    .preview-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .preview-subject {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+    }
+
+    .preview-subject:focus {
+      border-color: var(--primary);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* AI badge */
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-icon">📨</div>
+      <h1>採用メール作成ツール</h1>
+    </div>
+    <p class="subtitle">選考結果メールをAIで素早く作成できます</p>
+  </div>
+
+  <div class="progress">
+    <div class="progress-step active" id="prog1"></div>
+    <div class="progress-step" id="prog2"></div>
+  </div>
+
+  <!-- FORM -->
+  <div id="view-form">
+    <div class="field">
+      <label class="field-label">選考結果</label>
+      <div class="toggle-group">
+        <button class="toggle-btn pass-active" id="btn-pass" onclick="setResult('pass')">✅ 通過・内定</button>
+        <button class="toggle-btn" id="btn-fail" onclick="setResult('fail')">❌ 不合格</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">テンプレート</label>
+      <div class="template-list" id="template-list"></div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">候補者氏名</label>
+      <input type="text" id="input-name" placeholder="例：山田 太郎" />
+    </div>
+
+    <div class="field" id="field-schedule" style="display:none">
+      <label class="field-label">面接日程候補</label>
+      <input type="text" id="input-schedule" placeholder="例：3/20(木) 14時〜、3/21(金) 10時〜" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">AIへの追加要望 <span class="optional">（任意）</span></label>
+      <textarea id="input-extra" rows="2" placeholder="例：カジュアルなトーンで、次回の面接場所も含めて"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="useTemplate()">テンプレートをそのまま使う</button>
+      <button class="btn btn-primary" id="btn-generate" onclick="generateWithAI()">✨ AIで生成</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="view-preview" style="display:none">
+    <div class="field">
+      <label class="preview-label">件名</label>
+      <input type="text" class="preview-subject" id="preview-subject" />
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <label class="preview-label">本文</label>
+      <textarea id="preview-body" rows="16"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline" onclick="goBack()">← 戻る</button>
+      <button class="btn btn-primary" id="btn-copy" onclick="copyAll()">📋 コピー</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SIGNATURE = `■□━━━━━━━━━━━━━━━━━・・・・・‥‥‥……
+株式会社PKSHA Technology
+採用担当
+（本社）〒113-0033 東京都文京区本郷 2-35-10 本郷瀬川ビル（受付5F)
+（TKオフィス）〒113-0033 東京都文京区本郷 1-28-10 本郷TKビル（受付3F)
+OFFICIAL HP：https://pkshatech.com/ja/
+RECRUITMENT HP：https://www.pkshatech.com/recruitment/
+note：https://voice.pkshatech.com/all
+■□━━━━━━━━━━━━━━━━━・・・・・‥‥‥……`;
+
+const TEMPLATES = {
+  pass: [
+    {
+      label: "書類選考通過",
+      subject: "【書類選考通過のご連絡】株式会社PKSHA Technology 採用担当",
+      body: `{{氏名}} 様\n\nこの度は株式会社PKSHA Technologyへご応募いただき、誠にありがとうございます。\n\n書類選考の結果、ぜひ次のステップにお進みいただきたく、ご連絡申し上げます。\n\nつきましては、面接の日程についてご相談させてください。\n以下の日程のご都合はいかがでしょうか。\n\n{{日程}}\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n引き続きよろしくお願いいたします。\n\n${SIGNATURE}`,
+    },
+    {
+      label: "面接通過",
+      subject: "【面接通過のご連絡】株式会社PKSHA Technology 採用担当",
+      body: `{{氏名}} 様\n\n先日はお忙しい中、面接にお越しいただきありがとうございました。\n\n選考の結果、ぜひ次の選考にお進みいただきたく、ご連絡申し上げます。\n\n引き続きよろしくお願いいたします。\n\nつきましては、次回面接の日程についてご相談させてください。\n以下の日程のご都合はいかがでしょうか。\n\n{{日程}}\n\nご不明な点がございましたら、お気軽にお問い合わせください。\nどうぞよろしくお願いいたします。\n\n${SIGNATURE}`,
+    },
+    {
+      label: "内定",
+      subject: "【内定のご連絡】株式会社PKSHA Technology 採用担当",
+      body: `{{氏名}} 様\n\nこの度は株式会社PKSHA Technologyの選考にお進みいただき、誠にありがとうございました。\n\n厳正な選考の結果、ぜひ弊社の一員としてご活躍いただきたく、内定のご連絡をいたします。\n\n詳細につきましては、改めてご案内いたしますので、ご確認のほどよろしくお願いいたします。\nご不明な点がございましたら、お気軽にお問い合わせください。\n\n${SIGNATURE}`,
+    },
+  ],
+  fail: [
+    {
+      label: "書類選考不合格",
+      subject: "【選考結果のご連絡】書類選考について",
+      body: `{{氏名}} 様\n\nこの度はご応募いただき、誠にありがとうございました。\n\n厳正に選考いたしました結果、誠に残念ながら今回は採用を見送らせていただくこととなりました。\n\nご応募いただいたにも関わらず、ご期待に添えない結果となりましたことを、心よりお詫び申し上げます。\n\nなお、応募書類につきましては当社にて責任を持って破棄いたします。\n{{氏名}} 様の今後のご活躍を心よりお祈り申し上げます。\n\n${SIGNATURE}`,
+    },
+    {
+      label: "面接後不合格",
+      subject: "【選考結果のご連絡】面接選考について",
+      body: `{{氏名}} 様\n\n先日はお忙しい中、面接にお越しいただきありがとうございました。\n\n厳正に選考いたしました結果、誠に残念ながら今回は採用を見送らせていただくこととなりました。\n\nご応募いただいたにも関わらず、ご期待に添えない結果となりましたことを、深くお詫び申し上げます。\n{{氏名}} 様の今後のご活躍を心よりお祈り申し上げます。\n\n${SIGNATURE}`,
+    },
+    {
+      label: "カジュアル面談後お見送り",
+      subject: "【ご連絡】カジュアル面談のお礼とご報告",
+      body: `{{氏名}} 様\n\n先日はお忙しい中、カジュアル面談にお時間をいただきありがとうございました。\n\n{{氏名}} 様のご経験やお人柄について直接お話しできたこと、大変嬉しく思っております。\n\n社内で慎重に検討いたしました結果、誠に恐縮ながら今回は選考へのご案内が難しいという判断となりました。{{氏名}} 様のご経験・スキルと、現在弊社が求めているポジション要件との間にギャップがあると判断したことが主な理由です。{{氏名}} 様の素晴らしいご経験を活かしきれる環境をご提供できないことを、大変残念に思っております。\n\nせっかくお時間をいただいたにもかかわらず、このようなご連絡となってしまい申し訳ございません。\n\n{{氏名}} 様の今後のご活躍を心よりお祈り申し上げます。\nまたご縁がございましたら、ぜひお声がけできればと思っております。\n\n${SIGNATURE}`,
+    },
+  ],
+};
+
+let currentResult = 'pass';
+let currentTemplateIdx = 0;
+
+function setResult(r) {
+  currentResult = r;
+  currentTemplateIdx = 0;
+  document.getElementById('btn-pass').className = 'toggle-btn' + (r === 'pass' ? ' pass-active' : '');
+  document.getElementById('btn-fail').className = 'toggle-btn' + (r === 'fail' ? ' fail-active' : '');
+  renderTemplates();
+  updateScheduleField();
+}
+
+function renderTemplates() {
+  const list = document.getElementById('template-list');
+  list.innerHTML = '';
+  TEMPLATES[currentResult].forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'template-btn' + (i === currentTemplateIdx ? ' selected' : '');
+    btn.textContent = t.label;
+    btn.onclick = () => { currentTemplateIdx = i; renderTemplates(); updateScheduleField(); };
+    list.appendChild(btn);
+  });
+}
+
+function updateScheduleField() {
+  const show = currentResult === 'pass' && currentTemplateIdx === 0;
+  document.getElementById('field-schedule').style.display = show ? '' : 'none';
+}
+
+function fillTemplate(tpl) {
+  const name = document.getElementById('input-name').value || '（氏名）';
+  const schedule = document.getElementById('input-schedule').value || '（日程）';
+  const body = tpl.body.replace(/{{氏名}}/g, name).replace(/{{日程}}/g, schedule);
+  return { subject: tpl.subject, body };
+}
+
+function showPreview(subject, body) {
+  document.getElementById('preview-subject').value = subject;
+  document.getElementById('preview-body').value = body;
+  document.getElementById('view-form').style.display = 'none';
+  document.getElementById('view-preview').style.display = '';
+  document.getElementById('prog1').classList.remove('active');
+  document.getElementById('prog2').classList.add('active');
+  // reset prog1 style
+  document.getElementById('prog1').style.background = 'var(--primary)';
+}
+
+function useTemplate() {
+  const tpl = TEMPLATES[currentResult][currentTemplateIdx];
+  const { subject, body } = fillTemplate(tpl);
+  showPreview(subject, body);
+}
+
+async function generateWithAI() {
+  const btn = document.getElementById('btn-generate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>生成中...';
+
+  const name = document.getElementById('input-name').value || '（氏名）';
+  const schedule = document.getElementById('input-schedule').value || '';
+  const extra = document.getElementById('input-extra').value || '';
+  const tpl = TEMPLATES[currentResult][currentTemplateIdx];
+
+  const prompt = `あなたは採用担当者です。以下の情報をもとに、求職者への${currentResult === 'pass' ? '選考通過' : '選考不合格'}メールを日本語で作成してください。
+
+候補者名: ${name}
+テンプレート種別: ${tpl.label}
+${schedule ? `日程候補: ${schedule}` : ''}
+${extra ? `追加要望: ${extra}` : ''}
+
+件名と本文をそれぞれ出力してください。形式:
+件名: （件名）
+本文:
+（本文）
+
+丁寧でプロフェッショナルなトーンで書いてください。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '';
+    const subjectMatch = text.match(/件名[:：]\s*(.+)/);
+    const bodyMatch = text.match(/本文[:：]\n?([\s\S]+)/);
+    const subject = subjectMatch ? subjectMatch[1].trim() : tpl.subject;
+    const body = bodyMatch ? bodyMatch[1].trim() : fillTemplate(tpl).body;
+    showPreview(subject, body);
+  } catch {
+    const { subject, body } = fillTemplate(tpl);
+    showPreview(subject, body);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✨ AIで生成';
+}
+
+function goBack() {
+  document.getElementById('view-preview').style.display = 'none';
+  document.getElementById('view-form').style.display = '';
+  document.getElementById('prog2').classList.remove('active');
+}
+
+function copyAll() {
+  const subject = document.getElementById('preview-subject').value;
+  const body = document.getElementById('preview-body').value;
+  navigator.clipboard.writeText(`件名: ${subject}\n\n${body}`).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✅ コピーしました！';
+    btn.className = 'btn btn-success';
+    setTimeout(() => {
+      btn.textContent = '📋 コピー';
+      btn.className = 'btn btn-primary';
+    }, 2000);
+  });
+}
+
+// Init
+renderTemplates();
+updateScheduleField();
+</script>
+</body>
+</html>
